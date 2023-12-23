@@ -14,12 +14,15 @@ namespace _3.Database
     {
         private SqlConnection _conn;
         private readonly IManager<Profession> _proffesionManager;
+
+        public event RecordAddedNumber RecordAdded;
+
         /// <summary>
         /// Підлкючення до конкретної бази даних на сервері
         /// </summary>
         /// <param name="nameDatabase">Назва бази даних</param>
-        public delegate void RecordAddedNumber(int recordNumber);
-        public event RecordAddedNumber RecordAdded;
+        //public delegate void RecordAddedNumber(int recordNumber);
+        //public event RecordAddedNumber RecordAdded;
         public ClientManager(string nameDatabase)
         {
             var builder = new ConfigurationBuilder()
@@ -105,22 +108,22 @@ namespace _3.Database
             //виконати комнаду до сервера
             sqlCommand.ExecuteNonQuery();
         }
-         protected virtual void  OnRecordAdded()
-        {
-            RecordAdded?.Invoke(GetLastRecordNumber());
-        }
-        private int GetLastRecordNumber()
-        {
-            string sql = "SELECT MAX(Id) FROM tblClients;";
-            SqlCommand sqlCommand = _conn.CreateCommand();
-            sqlCommand.CommandText = sql;
-            object result = sqlCommand.ExecuteScalar();
-            if (result!=null&&int.TryParse(result.ToString(),out int lastRecordNum))
-            {
-                return lastRecordNum;
-            }
-            return 0;
-        }
+        // protected virtual void  OnRecordAdded()
+        //{
+        //    RecordAdded?.Invoke(GetLastRecordNumber());
+        //}
+        //private int GetLastRecordNumber()
+        //{
+        //    string sql = "SELECT MAX(Id) FROM tblClients;";
+        //    SqlCommand sqlCommand = _conn.CreateCommand();
+        //    sqlCommand.CommandText = sql;
+        //    object result = sqlCommand.ExecuteScalar();
+        //    if (result!=null&&int.TryParse(result.ToString(),out int lastRecordNum))
+        //    {
+        //        return lastRecordNum;
+        //    }
+        //    return 0;
+        //}
         public void Dispose()
         {
             _conn.Close();
@@ -167,6 +170,8 @@ namespace _3.Database
                 sqlCommand.CommandText = sql; //текст команди
                                               //виконати комнаду до сервера
                 sqlCommand.ExecuteNonQuery();
+                RecordAdded(i + 1);
+                
             }
         }
     }

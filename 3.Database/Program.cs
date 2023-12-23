@@ -131,6 +131,8 @@ namespace _3.Database
 
         private static void workingManager<T>(string title, IManager<T> manager)
         {
+            manager.RecordAdded += Manager_RecordAdded;
+            
             int action = 0;
             do
             {
@@ -159,7 +161,7 @@ namespace _3.Database
                     case 2:
                         {
                             manager.Insert();
-                            (manager as ClientManager).RecordAdded += Program_RecordAdded;
+                            //(manager as ClientManager).RecordAdded += Program_RecordAdded;
                             Console.WriteLine("----Запис успішно створено-----");
                             break;
                         }
@@ -208,9 +210,17 @@ namespace _3.Database
             manager.Dispose();
         }
 
-        private static void Program_RecordAdded(int recordNumber)
+        private static void Manager_RecordAdded(int recordNumber)
         {
-            Console.WriteLine($"New Client with {recordNumber} ID");
+            var defaltColout = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"-----Додано {recordNumber}------");
+            Console.ForegroundColor = defaltColout;
         }
+
+        //private static void Program_RecordAdded(int recordNumber)
+        //{
+        //    Console.WriteLine($"New Client with {recordNumber} ID");
+        //}
     }
 }

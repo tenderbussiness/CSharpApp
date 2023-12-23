@@ -9,8 +9,11 @@ namespace _3.Database.Interfaces
 {
     //Описує набір методів, якими має володіти сам об'єкт
     //Виконання опрецій над певною таблицею
+   
+        public delegate void RecordAddedNumber(int recordNumber);
     public interface IManager<T> : IDisposable
     {
+        public event RecordAddedNumber RecordAdded;
         /// <summary>
         /// Списко об'єктів таблиці
         /// </summary>

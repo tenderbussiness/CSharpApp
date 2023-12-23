@@ -28,6 +28,8 @@ namespace _3.Database
             _categoryManager=new CategoryManager(_conn);
         }
 
+        public event RecordAddedNumber RecordAdded;
+
         public void Delete(Product entity)
         {
             throw new NotImplementedException();
