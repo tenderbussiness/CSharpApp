@@ -9,7 +9,7 @@ namespace _3.Database
     /// Керування таблицею і даними по професіям
     /// </summary>
     public class ProfessionManager : IManager<Profession>
-    {
+     {
         private SqlConnection _conn;
 
         public event RecordAddedNumber RecordAdded;

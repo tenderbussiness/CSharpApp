@@ -3,7 +3,9 @@ using _3.Database.Interfaces;
 using Bogus;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Globalization;
+using System.Numerics;
 
 namespace _3.Database
 {
@@ -78,6 +80,7 @@ namespace _3.Database
         /// </summary>
         public void Insert()
         {
+
             Client c = new Client();
             Console.WriteLine("Вкажіть прізвище клієнта:");
             c.LastName = Console.ReadLine();
@@ -131,17 +134,56 @@ namespace _3.Database
 
         public Client GetById(int id)
         {
-            throw new NotImplementedException();
+            List<Client> clients = new List<Client>();
+            string sql = $"SELECT Id, ProfessionId, FirstName, LastName, Phone, DateOfBirth, CreatedDate, Sex " +
+                  $"FROM tblClients WHERE Id = {id};";
+
+            SqlCommand sqlCommand1 = _conn.CreateCommand();
+            sqlCommand1.CommandText = sql;
+            using (SqlDataReader reader = sqlCommand1.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    Client client = new Client
+                    {
+                        Id = int.Parse(reader["Id"].ToString()),
+                        LastName = reader["LastName"].ToString(),
+                        FirstName = reader["FirstName"].ToString(),
+                        Phone = reader["Phone"].ToString(),
+                        DateOfBirth = reader["DateOfBirth"].ToString(),
+                        CreatedDate = reader["CreatedDate"].ToString(),
+                        Sex = bool.Parse(reader["Sex"].ToString()),
+                        ProfessionId = int.Parse(reader["ProfessionId"].ToString())
+                    };
+                    return client;  
+             
+                }
+                return null;
+            }
         }
 
         public void Delete(Client entity)
         {
-            throw new NotImplementedException();
+            string sql = $"DELETE FROM tblClients WHERE Id ={entity.Id} ";
+            SqlCommand sqlCommand = _conn.CreateCommand();
+            sqlCommand.CommandText = sql;
+            sqlCommand.ExecuteNonQuery();
         }
 
         public void Update(Client entity)
         {
-            throw new NotImplementedException();
+            string sql = $"UPDATE tblClients SET " +
+                $"FirstName = N'{entity.FirstName}', " +
+                $"LastName = N'{entity.LastName}', " +
+                $"Phone = N'{entity.Phone}', " +
+                $"DateOfBirth = '{entity.DateOfBirth}', " +
+                $"Sex = {(entity.Sex ? 1 : 0)}, " +
+                $"ProfessionId = {entity.ProfessionId} " +
+                $"WHERE Id = {entity.Id}";
+
+            SqlCommand sqlCommand = _conn.CreateCommand();
+            sqlCommand.CommandText = sql;
+            sqlCommand.ExecuteNonQuery();
         }
 
         public void GenerateRandom(int count)
@@ -158,10 +200,14 @@ namespace _3.Database
                    return DateTime.Now.AddYears(-20).ToString("yyyy-MM-dd hh:mm:ss");
                })
                .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber());
+            Stopwatch stopwatch = new Stopwatch();
+            int counter = 0;
             for (int i = 0; i < count; i++)
             {
                 Client c = faker.Generate();
                 c.ProfessionId = 1;
+                
+                stopwatch.Start();
                 string sql = "INSERT INTO tblClients " +
                 "(FirstName, ProfessionId, LastName, Phone, DateOfBirth, CreatedDate, Sex) " +
                 $"VALUES(N'{c.FirstName}', {c.ProfessionId}, N'{c.LastName}', " +
@@ -170,9 +216,14 @@ namespace _3.Database
                 sqlCommand.CommandText = sql; //текст команди
                                               //виконати комнаду до сервера
                 sqlCommand.ExecuteNonQuery();
+                stopwatch.Stop();   
                 RecordAdded(i + 1);
+                counter = i+1;
                 
             }
+            
+
+            Console.WriteLine($"It's took {stopwatch.ElapsedMilliseconds} for creating {counter} items. ");
         }
     }
 }
